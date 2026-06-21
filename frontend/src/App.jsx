@@ -8,6 +8,7 @@ import { BrowserRouter, Route,Routes } from 'react-router-dom'
 import Login from './components/Login.jsx'
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Addfriends from './components/Addfriends.jsx'
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
       <Route path='/register' element={<Register/>}></Route>
       <Route path='/login' element={<Login/>}></Route>
       <Route path='/profile' element={<Profile/>}></Route>
+      <Route path='/add-friends' element={<Addfriends/>}></Route>
     </Routes>
     </BrowserRouter>
     </>

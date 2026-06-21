@@ -5,12 +5,17 @@ import { useState,useEffect,useRef } from 'react'
 import MessageContainer from './MessageContainer.jsx'
 import LeftSidebar from './LeftSidebar.jsx'
 
-
+let socket = io('http://localhost:8000',{
+     reconnection:true,
+     reconnectionAttempts:5,
+     reconnectionDelay:1000,
+})
 const Home = () => {
+  const [chat,updatechat] = useState(null)
   return (
     <div className='w-screen h-screen flex flex-row flex-1'>
-       <LeftSidebar/>
-      <MessageContainer/> 
+       <LeftSidebar updatechat={updatechat} socket={socket}/>
+      <MessageContainer socket={socket} chat={chat} /> 
      
     </div>
   )

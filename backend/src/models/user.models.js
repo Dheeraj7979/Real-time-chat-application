@@ -35,11 +35,12 @@ const userSchema = mongoose.Schema({
      },
      friends:[
           {
-               id:{
-                    type:mongoose.Schema.Types.ObjectId,
-                    ref:"User",
-               }
+               name:String,
+               email:String,
           }
+     ],
+     requests:[
+          {type:String}
      ],
      rooms:[
           {

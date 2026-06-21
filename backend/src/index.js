@@ -7,8 +7,6 @@ app.get('/',(req,res)=>{
      res.json("really listning")
 })
 
-
-
 await connectredis()
 await connectdb()
 

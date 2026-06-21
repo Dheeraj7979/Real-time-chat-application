@@ -7,7 +7,7 @@ const RegisterService = async function(payload){
      const response = await axiosInstance.post(`user/register`,payload);
      return response.data
 
-     }catch(err){
+     }catch(error){
           return Promise.reject(error)
      }
 }

@@ -30,11 +30,12 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
 import { AuthRouter } from './routes/User.routes.js';
+import { friendRouter } from './routes/friends.routes.js';
 
 
 
 app.use('/user',AuthRouter)
-
+app.use('/friend',friendRouter);
 
 
 

@@ -20,7 +20,7 @@ const Login = () => {
         console.log(response)
         localStorage.setItem("token",response.data?.accessToken||'')
         console.log(response.data)
-        updateuser(response.data)
+       await updateuser(response.data)
         navigate('/')
     } catch(error){
       if(error?.response?.data?.message){

@@ -9,9 +9,10 @@ const Navbar = () => {
 const navigate = useNavigate()
 
 
- const moveToSearchfriend = async()=>{
-     window.alert("search-friend")
+const moveToSearchfriend = async()=>{
+     navigate('/add-friends')
 }
+
 const moveToBot = async()=>{
      window.alert("moved to bot")
 }
@@ -23,12 +24,11 @@ const moveToProfile= async()=>{
 }
   return (
     
-    <div className='m-4 flex flex-row justify-between px-6 md:px-20'>
+    <div className='m-4 flex flex-row justify-between px-2'>
 
      <UserRoundSearch onClick={moveToSearchfriend}  className='cursor-pointer'/>
 
      <Bot onClick={moveToBot}  className='cursor-pointer'/>
-     
 
      <Bell onClick={showNotification}  className='cursor-pointer'/>
      <UserCog onClick={moveToProfile} className='cursor-pointer'/>
