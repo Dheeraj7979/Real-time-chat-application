@@ -25,9 +25,12 @@ const userSchema = mongoose.Schema({
      accessToken:{
           type:String,
      },
+     refreshToken:{
+          type:String,
+     },
      profile:{
           type:String,
-          default:''
+          default:'https://media.istockphoto.com/id/2222600430/vector/user-icon-silhouette-profile-avatar-profile-user-silhouette-isolated-on-background-icon.jpg?s=1024x1024&w=is&k=20&c=ImsDbmA-8Gf_qa64YJ33693t_lGVC1YYpN9IeYcqkkE='
      },
      isVerified:{
           type:Boolean,
@@ -69,9 +72,9 @@ userSchema.methods.generateRefreshToken =async function(){
           _id:this._id,
           email:this.email
      },
-     process.env.ACCESS_TOKEN_SECRET,
+     process.env.REFRESH_TOKEN_SECRET,
      {
-          expiresIn:ACCESS_TOKEN_EXPIRESIN
+          expiresIn:process.env.REFRESH_TOKEN_EXPIRESIN,
      }
 )
 }

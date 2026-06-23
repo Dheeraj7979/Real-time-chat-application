@@ -1,58 +1,34 @@
 import React, { useState } from 'react'
 import Navbar from './Navbar'
-
-const friendlist = [
-     {
-          img:"https://images.unsplash.com/photo-1740252117044-2af197eea287?q=80&w=1160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          name:"user interface ",
-          email:"xyz@gmail.com"
-     },
-     {
-          img:"https://images.unsplash.com/photo-1654110455429-cf322b40a906?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YXZhdGFyfGVufDB8fDB8fHww",
-          name:"doraemon",
-          email:"xyz@gmail.com"
-     },
-     {
-          img:"https://unsplash.com/photos/a-young-man-wearing-glasses-standing-in-front-of-a-mountain-MSepzbKFz10",
-          name:"koi toh hai",
-          email:"xyz@gmail.com"
-     },
-     {
-          img:"https://unsplash.com/photos/a-young-man-wearing-glasses-standing-in-front-of-a-mountain-MSepzbKFz10",
-          name:"koi toh hai",
-          email:"xyz@gmail.com"
-     },
-     {
-          img:"https://images.unsplash.com/photo-1740252117044-2af197eea287?q=80&w=1160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          name:"koi toh hai",
-          email:"xyz@gmail.com"
-     },
-     {
-          img:"https://images.unsplash.com/photo-1740252117044-2af197eea287?q=80&w=1160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          name:"koi toh hai",
-          email:"xyz@gmail.com"
-     },
-     {
-          img:"https://images.unsplash.com/photo-1740252117044-2af197eea287?q=80&w=1160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          name:"koi toh hai",
-          email:"xyz@gmail.com"
-     },
-     {
-          img:"https://images.unsplash.com/photo-1740252117044-2af197eea287?q=80&w=1160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          name
-          :"koi toh hai",
-          email:"xyz@gmail.com"
-     },
-     {
-          img:"https://images.unsplash.com/photo-1740252117044-2af197eea287?q=80&w=1160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          name:"koi toh hai",
-          email:"xyz@gmail.com"
-     },
-]
+import { useEffect } from 'react'
+import { findUnknownUsers, searchFriend } from '../services/friendsServices'
+import { avatar } from '../assets/assests'
 
 
 
 const Addfriends = () => {
+
+const [friendlist,updatefriendlist] = useState([
+     {
+          profile:"https://images.unsplash.com/photo-1740252117044-2af197eea287?q=80&w=1160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          name:"user interface ",
+          email:"xyz@gmail.com"
+     }
+])
+
+  useEffect(()=>{
+     const searchfrnd = async()=>{
+          try{
+               const response = await findUnknownUsers()
+               updatefriendlist(response.data)
+               console.log(response)
+          }catch(err){
+               console.log(err.response.data)
+          }
+     }
+     searchfrnd()
+  },[])
+
   return (
     <div className='w-screen h-screen flex flex-col'>
       <Navbar/>
@@ -60,7 +36,7 @@ const Addfriends = () => {
           {
                friendlist.map((user)=>{
                     return(
-                         <FriendCard name={user.name} image={user.img} email={user.email}/>
+                         <FriendCard name={user.name} image={user.profile} email={user.email}/>
                     )
                })
           }
@@ -88,11 +64,19 @@ const togglestatus = ()=>{
     <div className="w-60 p-5 rounded-xl bg-transparent border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.15)] hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all duration-300 flex flex-col items-center">
       
       <div className="w-16 h-16 mb-3 rounded-full p-[2px] bg-gradient-to-tr from-cyan-400 to-fuchsia-500">
-        <img
+          {/* avatar */}
+          {
+               image==''?<img
+          src={avatar}
+          alt={name}
+          className="w-full h-full object-cover rounded-full"
+        />:<img
           src={image}
           alt={name}
           className="w-full h-full object-cover rounded-full"
         />
+          }
+        
       </div>
 
       <h2 className="text-base font-bold text-white tracking-widest uppercase mb-1 text-center">

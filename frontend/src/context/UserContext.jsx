@@ -3,14 +3,19 @@ import { createContext, useState,Children } from "react";
 export const Usercontext = createContext(null)
 
 export const UsercontextProvider = function({children}){
+     const [isLoggedin,updateisLoggedin] = useState(false)
+
      const [user,updateuser] = useState({
-          name:'Dheeraj kumar verma',
-          email:'dheerajku357@gmail.com',
-          phone:'8709788097',
-          about:'sleeping...'
+          
      })
 
+     const logout = ()=>{
+          localStorage.removeItem('token')
+          updateuser({})
+          updateisLoggedin(false)
+     }
+
      return (
-          <Usercontext.Provider value={{user,updateuser}}>{children}</Usercontext.Provider>
+          <Usercontext.Provider value={{user,updateuser,logout,isLoggedin,updateisLoggedin}}>{children}</Usercontext.Provider>
      )
 }

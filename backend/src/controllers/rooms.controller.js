@@ -69,5 +69,23 @@ const searchFriend = asyncHandler(async(req,res,next)=>{
      )
 })
 
+const findUnknownUsers = asyncHandler(async(req,res,next)=>{
+     const users = await User.find().select('name email profile -_id')
+     const user = req.user
 
-export {friendRequest,acceptRequest,cancelRequest,searchFriend}
+     const usersemail = users.map((usrs)=>{
+          return usrs.email
+     })
+
+     user.friends.forEach(frnd => {
+          const idx = usersemail.indexOf(frnd.email)
+          users.splice(idx,1);
+     });
+
+     res.status(200).json(
+          new Apiresponse(200,users,"all unknown users fetched")
+     )
+})
+
+
+export {friendRequest,acceptRequest,cancelRequest,searchFriend,findUnknownUsers}

@@ -6,6 +6,14 @@ import { Apierror } from "../utils/Apierror.js";
 import { Apiresponse } from "../utils/apiresponse.js";
 import {asyncHandler}  from '../utils/AsyncHandler.js'
 import { generateotp, otphtml } from "../utils/generateOtp.js";
+import jwt from 'jsonwebtoken'
+
+
+const cookieOptions= {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+}
 
 
 const sendOtp = asyncHandler(async(req,res,next)=>{
@@ -78,18 +86,69 @@ const Login = asyncHandler(async(req,res,next)=>{
           throw new Apierror(403,"Incorrect Password")
      }
 
-     const accessToken = user.generateAccessToken(); 
+     const accessToken = await user.generateAccessToken(); 
+     const refreshToken  = await user.generateRefreshToken();
+     console.log(refreshToken)
      user.accessToken=accessToken
+     user.refreshToken = refreshToken
 
 
      await user.save({validateBeforeSave:false})
 
-     const saveduser = await User.findOne({email}).select("-password")
+     const saveduser = await User.findOne({email}).select("-password -refreshToken")
+     
 
-
-     res.status(200).json(
+     res.status(200).cookie('refreshToken',refreshToken,cookieOptions).json(
           new Apiresponse(200,saveduser,"User logged In")
+     )
+
+})
+
+const refreshAccessToken = asyncHandler(async(req,res,next)=>{
+     const token = req?.cookies?.refreshToken ||''
+     console.log(req)
+     console.log(token)
+     if(token===''){
+          throw new Apierror(403,"Invalid Token")
+     }
+     const decodedtoken = jwt.verify( token,process.env.REFRESH_TOKEN_SECRET)
+     
+     const user = await User.findById(decodedtoken._id)
+     if(!user || user.refreshToken!=token){
+          throw new Apierror(403,"Unauthorized access")
+     }
+
+     const accessToken =await user.generateAccessToken()
+     const refreshToken =await user.generateRefreshToken()
+     user.accessToken = accessToken
+     user.refreshToken = refreshToken
+     
+     await user.save({validateBeforeSave:false})
+
+     res.status(200).cookie('refreshToken',refreshToken,cookieOptions).json(
+          new Apiresponse(200,user,"tokens generated")
+     )
+
+})
+
+const userdetails = asyncHandler(async(req,res,next)=>{
+     res.status(200).json(
+          new Apiresponse(200,req.user,"user details fetched")
      )
 })
 
-export {sendOtp,emailVerification,Login}
+const logOut = asyncHandler(async(req,res,next)=>{
+     const user = req.user
+
+     res.status(200).clearCookie('refreshToken',user.refreshToken).json(
+          new Apiresponse(200,{},"User logged Out")
+     )
+     
+})
+
+export {sendOtp,
+     emailVerification,
+     Login,
+     refreshAccessToken,
+     userdetails,
+     logOut}

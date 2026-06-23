@@ -20,10 +20,14 @@ const LeftSidebar = ({updatechat,socket}) => {
     
     if(user.friends==undefined){
         const searchfriends = async()=>{
-        const response = await searchFriend()
-        console.log(response.data)
-        updatefriends(response.data)
-        updatechat((response.data)[0])
+        try{
+          const response = await searchFriend()
+          console.log(response.data)
+          updatefriends(response.data)
+          updatechat((response.data)[0])
+        } catch(error){
+          console.log(error)
+        }
         
       }
     searchfriends()
@@ -33,6 +37,7 @@ const LeftSidebar = ({updatechat,socket}) => {
     }
 
   },[user])
+
 
   useEffect(()=>{
   
@@ -86,7 +91,7 @@ const Chatboxes = ({name,email,updatechat,frnd})=>{
       
     }}
      className=' p-2 flex flex-row gap-3 relative'>
-      <img  className='h-12 w-12 rounded-full bg-blue-400'></img>
+      <img className='h-12 w-12 rounded-full bg-blue-400'></img>
       <div>
       <h3 className='font-semibold'>{name}</h3>
       <h5 className='text-sm overflow-scroll scrollbar-none'>{email}</h5>

@@ -1,6 +1,6 @@
 import { BASE_URL } from "../constants.js";
 import axios, { AxiosHeaders } from "axios";
-import { axiosInstance } from "../utils/axiosInstance.js";
+import { axiosInstance } from "../utils/axiosInstance.jsx";
 
 
 const searchFriend = async()=>{
@@ -37,4 +37,13 @@ const cancelRequest = async({email})=>{
      }
 }
 
-export {searchFriend,sendrequest,acceptrequest,cancelRequest}
+const findUnknownUsers = async()=>{
+     try{
+          const response = await axiosInstance.get('/friend/unknown')
+          return response.data
+     } catch(error){
+          return Promise.reject(error)
+     }
+}
+
+export {searchFriend,sendrequest,acceptrequest,cancelRequest,findUnknownUsers}

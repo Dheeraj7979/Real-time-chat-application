@@ -4,6 +4,7 @@ import io from 'socket.io-client'
 import { useState,useEffect,useRef } from 'react'
 import MessageContainer from './MessageContainer.jsx'
 import LeftSidebar from './LeftSidebar.jsx'
+import { useContext } from 'react'
 
 let socket = io('http://localhost:8000',{
      reconnection:true,
@@ -11,6 +12,7 @@ let socket = io('http://localhost:8000',{
      reconnectionDelay:1000,
 })
 const Home = () => {
+  
   const [chat,updatechat] = useState(null)
   return (
     <div className='w-screen h-screen flex flex-row flex-1'>
