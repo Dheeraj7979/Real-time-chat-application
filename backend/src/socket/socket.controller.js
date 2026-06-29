@@ -1,69 +1,86 @@
 import { io } from "../app.js";
 import { redis } from "../database/redis.js";
 import { Message } from "../models/message.models.js";
+import { Apierror } from "../utils/Apierror.js";
 
+ export const allsockets = new Map();
 
-const handleSocketConnections = async()=>{
-  try{
+const handleSocketConnections = async () => {
+  try {
+    io.on('connection', (socket) => {
+      console.log("New user connected:", socket.id);
 
-     io.on('connection',(socket)=>{
-     
-     console.log("new user connected ",socket.id)
+      socket.on('join_room', (email) => {
+        if (!email) return;
+        
+        const cleanEmail = email.trim();
+        socket.join(cleanEmail);
+        
+        allsockets.set(cleanEmail, socket.id);
+      });
 
-     const joinsocket= async()=>{
+      
+      socket.on('send_message', async (data) => {
+        try {
           
-     }
+          const sortedEmails = [...data.email].sort();
+          const room = `${sortedEmails[0]}_${sortedEmails[1]}`;
 
-     socket.on('join_room',(email)=>{
-           email = email.sort()
-           const room = `${email[0]} ${email[1]}`
-          console.log(room)
+          const senderkey = data.sender.trim();
+          const receiverkey = data.receiver.trim();
+
+          const newmsg = await Message.create({
+            message: data.message,
+            room: room,
+            sender: data.sender,
+            receiver: data.receiver,
+            createdAt: new Date()
+          });
+
+          const senderSocketId = allsockets.get(senderkey);
+          const receiverSocketId = allsockets.get(receiverkey);
 
 
-          const fetchmessages = async()=>{
-               const pastmessages = await Message.find({room:room})
-               socket.emit('past_message',pastmessages)
+          if (senderSocketId) {
+            io.to(senderSocketId).emit('receive_message', newmsg);
+          }
+          if (receiverSocketId) {
+            io.to(receiverSocketId).emit('receive_message', newmsg);
           }
 
-          fetchmessages()
+          console.log(`Message successfully routed to room ${room}`);
 
-     })
+        } catch (err) {
+          console.log("Database/Emit Error:", err);
+        }
+      });
 
-     socket.on('send_message',(data)=>{
-          const email = data.email.sort()
-          const room = `${email[0]} ${email[1]}`
 
-          // socket.to(room).emit('receive_message',data)
-          socket.emit('receive_message',data)
+      socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+        for (let [email, id] of allsockets.entries()) {
+          if (id === socket.id) {
+            allsockets.delete(email);
+            console.log(`Cleaned up Map for disconnected user: ${email}`);
+            break;
+          }
+        }
+      });
+    });
+    return io;
 
-          const savemsgindb = async()=>{
-               try{
-                    await Message.create(
-                         {
-                              message:data.message,
-                              room:room,
-                              sender:data.sender,
-                              createdAt:new Date()
-                         }
-                    )
-               }catch(err){
-                    console.log(err)
-               }
-          } 
-          savemsgindb()
-          
-     })
+  } catch (err) {
+    console.log("Socket Connection Initialization Error:", err);
+  }
+};
 
-     socket.on('disconnect',()=>{   
-          console.log('user disconnected with id ',socket.id)
-     })
-})
+export { handleSocketConnections };
 
-  } catch(err){
-     console.log(err)
+export const getIo = ()=>{
+  if(!io){
+    throw new Apierror(500,"Socket.io not initialized!")
+  } else {
+    return io
   }
 }
-
-
-export  {handleSocketConnections}
 

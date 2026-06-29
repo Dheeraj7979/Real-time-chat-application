@@ -17,6 +17,7 @@ import { getuserdetails } from './services/AuthServices.js'
 import Loader from './components/Loader.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import NotFound from './components/Notfound.jsx'
+import Notification from './components/Notification.jsx'
 
 function App() {
   const {user,updateuser} = useContext(Usercontext)
@@ -25,11 +26,11 @@ function App() {
   const {isLoggedin,updateisLoggedin} = useContext(Usercontext)
   const hasToken = !!localStorage.getItem('token')
   const [isloading, setisloading] = useState(hasToken)
-
+ 
+  
   useEffect(() => {
     contextStateHolder.updateuser = updateuser;
     contextStateHolder.setisLoggedin = updateisLoggedin
-    // console.log(contextStateHolder.updateuser===updateuser)
     
   }, []);
 
@@ -58,7 +59,6 @@ function App() {
     }
 
     fetchuser()
-
   },[])
 
   useEffect(() => {
@@ -69,11 +69,6 @@ function App() {
 }, [user]);
 
 
-  if(isloading){
-    return (
-      <Loader/>
-    )
-  } else{
       return (
     <>
     <ToastContainer/>
@@ -103,6 +98,16 @@ function App() {
               element={<ProtectedRoute isloading={isloading}>
                     <Addfriends/>
              </ProtectedRoute>}></Route>
+             
+             {/* <Route 
+             path='/notification'
+             element={
+             <ProtectedRoute isloading={isloading}>
+                <Notification/>
+             </ProtectedRoute>}
+             >
+             </Route> */}
+             <Route path='/notification' element={<Notification/>}></Route>
 
 
             <Route path='/:abcd' element={<NotFound/>}></Route>
@@ -112,8 +117,5 @@ function App() {
     </>
   )
   }
-
-  
-}
 
 export default App

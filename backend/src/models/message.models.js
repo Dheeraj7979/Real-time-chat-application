@@ -4,7 +4,14 @@ import mongoose from "mongoose";
 const messageSchema = mongoose.Schema({
      message:String,
      room:String,
-     sender:String,
+     sender:{
+          type:String,
+          lowercase:true,
+     },
+     receiver:{
+          type:String,
+          lowercase:true,
+     },
      createdAt:{
           type:Date
      }

@@ -30,17 +30,14 @@ const userSchema = mongoose.Schema({
      },
      profile:{
           type:String,
-          default:'https://media.istockphoto.com/id/2222600430/vector/user-icon-silhouette-profile-avatar-profile-user-silhouette-isolated-on-background-icon.jpg?s=1024x1024&w=is&k=20&c=ImsDbmA-8Gf_qa64YJ33693t_lGVC1YYpN9IeYcqkkE='
+          default:''
      },
      isVerified:{
           type:Boolean,
           default:false
      },
      friends:[
-          {
-               name:String,
-               email:String,
-          }
+          String,
      ],
      requests:[
           {type:String}

@@ -3,6 +3,14 @@ import axios, { AxiosHeaders } from "axios";
 import { axiosInstance } from "../utils/axiosInstance.jsx";
 
 
+const fetchHistory = async({emails})=>{
+     try{
+          const response = await axiosInstance.post('rooms/past-messages',{emails})
+          return response.data
+     }catch(error){
+          return Promise.reject(error)
+     }
+}
 const searchFriend = async()=>{
      try{
           const response = await axiosInstance.get(`friend/all`)
@@ -46,4 +54,4 @@ const findUnknownUsers = async()=>{
      }
 }
 
-export {searchFriend,sendrequest,acceptrequest,cancelRequest,findUnknownUsers}
+export {searchFriend,sendrequest,acceptrequest,cancelRequest,findUnknownUsers,fetchHistory}

@@ -29,21 +29,23 @@ app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
+
+
 import { AuthRouter } from './routes/User.routes.js';
 import { friendRouter } from './routes/friends.routes.js';
-
+import RoomsRouter from './routes/rooms.routes.js';
+import { notificationRouter } from './routes/Notification.routes.js';
 
 
 app.use('/user',AuthRouter)
-app.use('/friend',friendRouter);
-
+app.use('/friend',friendRouter)
+app.use('/rooms',RoomsRouter)
+app.use('/notification',notificationRouter)
 
 
 app.use((err, req, res, next) => {
     
   console.error(err);
-  
-
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Internal Server Error",
