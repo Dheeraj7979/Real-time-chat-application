@@ -3,6 +3,7 @@ import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Usercontext } from '../context/UserContext.jsx'
 import { logoutservice } from '../services/AuthServices.js'
+import { avatar } from '../assets/assests.js'
 
 
 const Profile = () => {
@@ -39,8 +40,20 @@ const Profile = () => {
                </div>
           </nav>
           <div className='w-full py-20'>
-               <img className='bg-white h-36 w-36 rounded-full m-auto'>
-               </img>
+               
+               <div className='h-36 w-36 rounded-full m-auto'>
+                    {
+                         user.profile==''?<img
+                                   src={avatar}
+                                   alt={name}
+                                   className="w-full h-full object-cover rounded-full"
+                                 />:<img
+                                   src={user.profile}
+                                   alt={name}
+                                   className="w-full h-full object-cover rounded-full"
+                                 />
+                    }
+               </div>
                <label htmlFor='image-upload'><Camera className='mx-auto relative bottom-3'/></label>
                <input id='image-upload' type='file' accept='image/*' className='mx-auto' style={{display:'none'}} ></input>
                
