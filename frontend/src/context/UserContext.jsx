@@ -9,6 +9,7 @@ export const UsercontextProvider = function({children}){
           
      })
 
+
      const logout = ()=>{
           localStorage.removeItem('token')
           updateuser({})

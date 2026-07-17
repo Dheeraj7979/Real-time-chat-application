@@ -124,11 +124,27 @@ const rejectRequest = asyncHandler(async(req,res,next)=>{
      )
 })
 
+function escapeRegex(text) {
+     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+
+const searchUser = asyncHandler(async(req,res,next)=>{
+     const {rawQuery} = req?.query || ''
+     console.log(rawQuery)
+     const filteredQuery = escapeRegex(rawQuery)
+     const users = await User.find({name:{$regex:filteredQuery,$options:'i'}}).limit(20).select('name email profile friends requests _id')
+     
+     res.status(200).json(
+          new Apiresponse(200,users,"users fetched!")
+     )
+})
+
 export {
      friendRequest,
      acceptRequest,
      cancelRequest,
      searchFriend,
      findUnknownUsers,
-     rejectRequest
+     rejectRequest,
+     searchUser
 }

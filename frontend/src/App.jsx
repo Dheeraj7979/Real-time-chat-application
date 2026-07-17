@@ -18,6 +18,7 @@ import Loader from './components/Loader.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import NotFound from './components/Notfound.jsx'
 import Notification from './components/Notification.jsx'
+import Agent from './components/Agent.jsx'
 
 function App() {
   const {user,updateuser} = useContext(Usercontext)
@@ -63,7 +64,6 @@ function App() {
 
   useEffect(() => {
   if (user && Object.keys(user).length > 0) {
-    console.log("updated");
     updateisLoggedin(true);
   }
 }, [user]);
@@ -99,15 +99,23 @@ function App() {
                     <Addfriends/>
              </ProtectedRoute>}></Route>
              
-             {/* <Route 
+             <Route 
              path='/notification'
              element={
              <ProtectedRoute isloading={isloading}>
                 <Notification/>
              </ProtectedRoute>}
              >
-             </Route> */}
-             <Route path='/notification' element={<Notification/>}></Route>
+             </Route>
+             <Route 
+             path='/agent'
+             element={
+             <ProtectedRoute isloading={isloading}>
+                <Agent/>
+             </ProtectedRoute>}
+             >
+             </Route>
+             {/* <Route path='/notification' element={<Notification/>}></Route> */}
 
 
             <Route path='/:abcd' element={<NotFound/>}></Route>

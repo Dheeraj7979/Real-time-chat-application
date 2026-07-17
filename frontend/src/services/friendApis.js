@@ -44,10 +44,18 @@ export const friendSlice = api.injectEndpoints({
                }),
                providesTags:['friends'],
                transformResponse:(response)=>{
+                    console.log(response)
                     return response.data
                }
           }),
+          searchUser: builder.query({
+               query:({rawQuery})=>({
+                    url:'/friend/search',
+                    method:'GET',
+                    params:{rawQuery}
+               })
+          })
      })
 })
 
-export const  {useSendRequestMutation,useCancelRequestMutation,useAcceptRequestMutation,useRejectRequestMutation,useGetAllfriendsQuery} = friendSlice
+export const  {useSendRequestMutation,useCancelRequestMutation,useAcceptRequestMutation,useRejectRequestMutation,useGetAllfriendsQuery,useSearchUserQuery} = friendSlice

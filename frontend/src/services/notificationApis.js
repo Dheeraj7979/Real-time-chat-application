@@ -1,14 +1,22 @@
 import { api } from "./apiSlice";
 import { socket } from "../components/Home";
+import { useDispatch } from "react-redux";
+import { makeNotificationTrue } from "./NotificationSlice";
+
 
 const notificationSlice = api.injectEndpoints({
      endpoints:(builder)=>({
           fetchNotification: builder.query({
-               query: ({ id, limit }) => ({
-               url: '/notification/all',
-               method: 'GET',
-               params: { id, limit }
-               }),
+               async queryFn({ id, limit }, api, extraOptions, baseQuery) {
+                    const result = await baseQuery({
+                         url: "/notification/all",
+                         method: "GET",
+                         params: { id, limit },
+                    });
+
+                    return result;
+                    },
+
                providesTags: ['Notification'],
                serializeQueryArgs: ({ endpointName }) => {
                return endpointName;
@@ -23,7 +31,18 @@ const notificationSlice = api.injectEndpoints({
                return currentArg !== previousArg;
                },
 
-               async onCacheEntryAdded(arg,{updateCachedData , cacheDataLoaded,cacheEntryRemoved}){
+          //      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+          //           try {
+          //           await queryFulfilled;
+          //           console.log(arg)
+          //           console.log(dispatch(makeNotificationTrue()))
+          //      } catch (error) {
+          //           console.error(error);
+          //      }
+          // },
+
+          // socket related updates that is asynchronous updates...
+               async onCacheEntryAdded(arg,{updateCachedData ,dispatch, cacheDataLoaded,cacheEntryRemoved}){
                     
                     await cacheDataLoaded;
 
@@ -34,6 +53,7 @@ const notificationSlice = api.injectEndpoints({
                               console.log(draft)
                               draft.data.unshift(message)
                          })
+                         dispatch(makeNotificationTrue())
                     })
                }
                }),

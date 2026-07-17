@@ -11,11 +11,24 @@ import { Skeleton } from './Skeleton.jsx'
 import { useFetchChatHistoryQuery } from '../services/HistoryApis.js'
 import { useDispatch } from 'react-redux'
 import { api } from '../services/apiSlice.js'
+import { axiosInstance } from '../utils/axiosInstance.jsx'
 
 const MessageContainer = ({chat,socket,isChatOpen,updateIsChatOpen,data,isLoading}) => {
      // const dispatch = useDispatch()
      const {user} = useContext(Usercontext)
      const [message,updatemessage] = useState([])
+     const [isonline,updateisonline] = useState(false)
+     const [istyping,updateistyping] = useState(false)
+     useEffect(()=>{
+          const checkIsOnline = async()=>{
+               const response = await axiosInstance.get('/rooms/isonline',{
+                    params:{email:chat.email}
+               })
+               const data = response.data
+               updateisonline(data.data)
+          }
+          checkIsOnline()
+     },[])
      
 
   useEffect(()=>{
@@ -26,6 +39,28 @@ const MessageContainer = ({chat,socket,isChatOpen,updateIsChatOpen,data,isLoadin
   },[data])
 
 
+//   for receiving typing update in chat box 
+  useEffect(()=>{
+     let cnt1=0,cnt2=0;
+     const handleTypingConfirmation = async(data)=>{
+          if(data.senderemail==chat.email){
+               cnt1++;
+               updateistyping(true)
+               setTimeout(()=>{
+               cnt2++;
+               if(cnt1==cnt2){
+                    updateistyping(false)
+               }
+               
+               },1000)
+          }
+          
+     }
+     socket.on('typing',handleTypingConfirmation)
+     return ()=> socket.off('typing',handleTypingConfirmation)
+  },[])
+
+
   return (
      
      <div className='w-full flex h-screen flex-col py-4 justify-between '>
@@ -34,19 +69,25 @@ const MessageContainer = ({chat,socket,isChatOpen,updateIsChatOpen,data,isLoadin
                <ArrowLeft 
                     onClick={()=>{updateIsChatOpen(false)}}
                     color='white' className=' my-auto'
-                ></ArrowLeft>
-                <div className='h-12 w-12 bg-blue-400 rounded-full'>
+               ></ArrowLeft>
+               <div className='h-12 w-12 bg-blue-400 rounded-full'>
                     {
-                            chat.profile==''?<img src={avatar} className='h-12 w-12 rounded-full'></img>:<img src={`${frnd.profile}`} className='h-12 w-12 rounded-full'></img>
-                          }
-                </div>
+                         chat.profile==''?<img src={avatar} className='h-12 w-12 rounded-full'></img>:<img src={`${chat.profile}`} className='h-12 w-12 rounded-full'></img>
+                    }
+               </div>
                
                {
                     isLoading?<div className='my-auto'>
                          <Skeleton ></Skeleton>
                     </div>:<div className='my-auto'>
                <p className='text-md text-white my-auto capitalize'>{chat.name}</p>
-               <p className='text-sm text-green-400 overflow-hidden'>{chat.email}</p>
+               {
+                    isonline==true?<div className="flex items-center gap-2 text-sm text-gray-500">
+                         <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse"></span>
+                         <span className="text-green-600 font-medium">Online</span>
+                    </div>:<></>
+               }
+               
                </div>
                }
                
@@ -56,18 +97,28 @@ const MessageContainer = ({chat,socket,isChatOpen,updateIsChatOpen,data,isLoadin
                <LucideMoreVertical color='white' className='cursor-pointer'/>  
           </div>
           </div>
-
-          <div className=' relative flex flex-col-reverse py-2 bg-[#212121] flex-1 overflow-scroll scrollbar-none my-1'>
+          
+          <div className={`${istyping?'mb-0':'mb-1'} relative flex flex-col-reverse py-2 bg-[#212121] flex-1 overflow-scroll scrollbar-none mt-1 focus-within:bottom-0`}>
           {
                isLoading?<Loader/>:<>{
-      message.map((msg,idx)=>{
+          message.map((msg,idx)=>{
           return( <Message key={msg.createdAt} data={msg} sender={msg.sender} user={user} isLoading={isLoading}/>)
       })
      }
      </>
           }
-          
           </div>
+          {
+               istyping?<div className=" flex items-center gap-2 px-3 py-2 text-sm text-gray-500 bg-[#212121] mt-0">
+      <div className="flex gap-1">
+        <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:0ms]" />
+        <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]"/>
+        <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]"/>
+      </div>
+     
+      <span>{chat.name} is typing...</span>
+    </div>:<></>
+               }
           
           <div className=''>
           <TypeMessage socket={socket} chat={chat}/>
@@ -97,13 +148,12 @@ export default MessageContainer
 
 const Message = ({data,sender,user})=>{
      const time = convertedtime((new Date(data.createdAt)).toLocaleTimeString({hour12:false}))
-     
      return(
           <div className={`${(sender==user.email?'bg-slate-700 text-white ml-auto':'bg-white')} p-1 rounded-md  max-w-[50%] sm:max-w-[50%]  mx-3 mb-1 min-w-16 flex flex-row w-fit gap-1`}>
                
-               <p className='text-[12px] font-normal max-w-[85%] md:max-w-[95%] wrap-break-word'>{data.message}</p>
+               <p className='text-[12px] font-normal max-w-[85%] md:max-w-[95%]'>{data.message}</p>
                <div className='flex flex-row w-full text-[8px] flex-1 items-end'>
-                    <p className='text-right w-full '>{time}</p>
+                    <p className='text-right w-full'>{time}</p>
                </div>
           </div>
      )
@@ -131,15 +181,26 @@ const TypeMessage = ({chat,socket})=>{
           updatemessage(e.target.value)
      }
 
+     const sentTypingConfirmation = ()=>{
+          const data = {
+               receiveremail:chat.email,
+               senderemail:user.email
+          }
+          socket.emit('typing',data)
+     }
+
      return(
           <div className=' bottom-4 w-full bg-transparent'>
           <div className='gap-2 bg-white m-auto w-[95%]  flex flex-row px-4 py-3 rounded-4xl'>
                {/* <Plus/> */}
                <Smile/>
-               <input
+               <input 
+
+                    rows={1}
                     value={message}
                     onChange={updatemsg}
-               type='text' placeholder='Type your message...' className='flex-1  active:outline-none hover:outline-none focus:outline-none'></input>
+                    onKeyDown={()=>{sentTypingConfirmation()}}
+               type='text' placeholder='Type your message...' className='flex-1 active:outline-none hover:outline-none focus:outline-none'></input>
                <Send 
                 onClick={sendmessage}/>
           </div>

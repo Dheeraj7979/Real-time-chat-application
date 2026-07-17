@@ -41,7 +41,7 @@ export const createNotification = async({message,useremail,type,requestemail=''}
            console.log(allsockets)
           const isNotificationpresent = await Notification.findOne({message,useremail,type})
 
-               // if(!isNotificationpresent){
+               if(!isNotificationpresent){
 
                     const userEmail = useremail.trim().toLowerCase()
                     const requestEmail = requestemail.toLowerCase()
@@ -60,9 +60,7 @@ export const createNotification = async({message,useremail,type,requestemail=''}
 
                          io.to(allsockets.get(userEmail)).emit('notification',notificationobj)
                          console.log("notification sent to ",allsockets.get(userEmail))
-                    
-               // }
-          
+               }
      }catch(err){
           console.log(err)
      }

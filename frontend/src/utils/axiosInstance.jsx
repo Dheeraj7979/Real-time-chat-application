@@ -14,6 +14,7 @@ const axiosInstance = axios.create({
      baseURL:BASE_URL,
      timeout:80000,
      withCredentials: true,
+     
      headers:{
           "Content-Type":"application/json",
           Accept:"application/json",
@@ -41,29 +42,23 @@ axiosInstance.interceptors.response.use(
     },
     async(error)=>{
         if(error.response){
-             console.log(error.response.data.message)
-            if(error.response.data.message =='jwt expired' || error.response.data.message==="token failed"){
-                console.log("working because token expired ! ")
-                if(count<3){
-                    try{
-                        
-                        const response= await refreshtokens()
-                        count+=1;
-                        console.log(response)
-                        if(contextStateHolder.updateuser){
-                            contextStateHolder.updateuser(response.data)
-                            console.log("updated")
-                            localStorage.setItem('token',response.data.accessToken)
-                        }
-                    } catch(err){
-                        contextStateHolder.setisLoggedin(false)
-                        contextStateHolder.updateuser({})
-                        localStorage.removeItem('token')
-                    } 
-                }
- 
-            }
-            else if(error.response.status===500){
+           async (error) => {
+    const originalRequest = error.config;
+
+    // If we get a 401 and we haven't retried this request yet
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true; // Mark to prevent infinite loops
+
+      // Pause for 150ms to let the cookie finish writing
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      // Retry the exact same request again (now with the cookie present)
+      return api(originalRequest);
+    }
+
+    return Promise.reject(error);
+  }
+            if(error.response.status===500){
                 console.error("Server error. Please try again later.");
             }else if(error.code === "ECONNABORTED"){
                 console.error("Reques timeout. Please try again.");

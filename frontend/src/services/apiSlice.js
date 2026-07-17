@@ -5,6 +5,7 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:8000",
+    credentials: 'include',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {

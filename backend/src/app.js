@@ -30,18 +30,18 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
 
-
 import { AuthRouter } from './routes/User.routes.js';
 import { friendRouter } from './routes/friends.routes.js';
 import RoomsRouter from './routes/rooms.routes.js';
 import { notificationRouter } from './routes/Notification.routes.js';
+import { agentRouter } from './routes/agent.routes.js';
 
 
 app.use('/user',AuthRouter)
 app.use('/friend',friendRouter)
 app.use('/rooms',RoomsRouter)
 app.use('/notification',notificationRouter)
-
+app.use('/agent',agentRouter)
 
 app.use((err, req, res, next) => {
     

@@ -6,34 +6,33 @@ import { avatar } from '../assets/assests.js'
 import { useFindUnknownUsersQuery } from '../services/apiSlice'
 import Loader from './Loader'
 import { Usercontext } from '../context/UserContext.jsx'
-import { useCancelRequestMutation, useSendRequestMutation } from '../services/friendApis.js'
+import { useCancelRequestMutation, useSearchUserQuery, useSendRequestMutation } from '../services/friendApis.js'
 import { useDeleteNotificationMutation } from '../services/notificationApis.js'
-
+import { Cross, Search, X } from 'lucide-react'
+import { axiosInstance } from '../utils/axiosInstance.jsx'
 
 
 const Addfriends = () => {
  const [lastId,updatelastId] = useState('')
  const [users,updateusers]=useState([])
-
+ const [query,updatequery] = useState('')
+ const [searchuserpresent,updatesearchuserpresent] = useState(false)
  const {data,isLoading,isSuccess,isFetching, error} = useFindUnknownUsersQuery({limit:20,lastId})
  const {user} = useContext(Usercontext)
  
 
  useEffect(() => {
    const handleScroll = () => {
-
      if (isLoading || isFetching) return;
      const isAtBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100; 
 
      if (isAtBottom && users && users.length > 0) {
           const lastId = users[users.length - 1]._id;
           updatelastId(lastId);
-          console.log(users.length)
-          console.log("last id updated ", users[users.length-1])
      }
      };
    window.addEventListener('scroll', handleScroll);
- 
+
    return () => window.removeEventListener('scroll', handleScroll);
  }, [isLoading, isFetching, users]);
 
@@ -43,6 +42,23 @@ const Addfriends = () => {
           console.log('users updated ')
      }
 },[isLoading,data])
+
+const searchUser = async()=>{
+     if(query.trim()!==''){
+          const response = await axiosInstance.get('/friend/search',{
+               params:{rawQuery:query}
+          })
+          console.log(response)
+          updateusers(response.data.data)
+          updatesearchuserpresent(true)
+     }
+}
+const removeSearch = ()=>{
+     updateusers(data.data)
+     updatesearchuserpresent(false)
+     updatequery('')
+
+}
 
 if(isLoading || !users)
 {
@@ -54,7 +70,26 @@ if(isLoading || !users)
   return (
     <div className='w-screen h-screen flex flex-col bg-white'>
           <Navbar className=''/>
+
+          <div id='search' className='h-10  text-[16px] flex flex-row gap-4 rounded-3xl py-2 px-4 mx-4 my-4 bg-gray-200'>
+          
+          <input value={query} onChange={(e)=>{updatequery(e.target.value)}} className='w-full hover:outline-none focus:outline-none' type='text' placeholder='Search User'></input>
+          <Search 
+               onClick={()=>{searchUser()}}
+               className='my-auto' height={'18px'} fill={'#EEEEEE'} />
+          {
+               searchuserpresent?<X 
+               onClick={()=>{removeSearch()}}
+               className='my-auto' height={'18px'} fill={'#EEEEEE'} />:<></>
+          }
+          
+          {/* search box ended here */}
+
+        </div>
       <div className='bg-[#212121] flex-1 grid mx-auto justify-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-8 w-full'>
+
+          {/* search box  */}
+          
           {
                users.map((usr)=>{
                     if(usr.email!=user.email){

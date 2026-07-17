@@ -1,4 +1,5 @@
 import { Message } from "../models/message.models.js";
+import { allsockets } from "../socket/socket.controller.js";
 import { Apierror } from "../utils/Apierror.js";
 import { Apiresponse } from "../utils/apiresponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
@@ -23,4 +24,12 @@ const fetchPastMessages = asyncHandler(async(req ,res ,next)=>{
      )
 })
 
-export {fetchPastMessages}
+const checkIsOnline = asyncHandler(async(req,res,next)=>{
+     const {email} = req.query
+     const issocketpresent = allsockets.has(email)
+     res.status(200).json(
+          new Apiresponse(200,issocketpresent,"status fetched")
+     )
+})
+
+export {fetchPastMessages , checkIsOnline}

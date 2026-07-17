@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { emailVerification, Login, logOut, refreshAccessToken, sendOtp, userdetails } from "../controllers/auth.controllers.js";
-import multer from "multer";
+import { emailVerification, Login, logOut, refreshAccessToken, sendOtp, uploadAvatar, userdetails } from "../controllers/auth.controllers.js";
+import { upload,uploadprofile } from "../middleware/multer.middleware.js";
 import { authmiddleware } from "../middleware/auth.middleware.js";
 import { fetchAllNotification } from "../controllers/notification.controller.js";
 
 const AuthRouter = Router()
-const upload = multer()
 
 AuthRouter.get('/getotp',upload.none(),sendOtp)
 AuthRouter.post('/getotp',upload.none(),sendOtp)
@@ -14,5 +13,8 @@ AuthRouter.post('/login',upload.none(),Login)
 AuthRouter.post('/refresh-token',upload.none(),refreshAccessToken)
 AuthRouter.get('/details',authmiddleware, userdetails)
 AuthRouter.post('/logout',authmiddleware,logOut)
+AuthRouter.post('/update-avatar', uploadprofile.single('avatar'), authmiddleware,uploadAvatar)
+
+
 
 export {AuthRouter}

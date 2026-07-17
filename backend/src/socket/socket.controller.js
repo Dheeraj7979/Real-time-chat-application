@@ -3,7 +3,7 @@ import { redis } from "../database/redis.js";
 import { Message } from "../models/message.models.js";
 import { Apierror } from "../utils/Apierror.js";
 
- export const allsockets = new Map();
+export const allsockets = new Map();
 
 const handleSocketConnections = async () => {
   try {
@@ -54,6 +54,10 @@ const handleSocketConnections = async () => {
           console.log("Database/Emit Error:", err);
         }
       });
+
+      socket.on('typing',async(data)=>{
+        socket.to(data.receiveremail).emit('typing',{senderemail:data.senderemail})
+      })
 
 
       socket.on('disconnect', () => {

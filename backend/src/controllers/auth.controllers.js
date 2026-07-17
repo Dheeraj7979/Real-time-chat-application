@@ -5,8 +5,10 @@ import { sendMail } from "../services/sendMail.js";
 import { Apierror } from "../utils/Apierror.js";
 import { Apiresponse } from "../utils/apiresponse.js";
 import {asyncHandler}  from '../utils/AsyncHandler.js'
+import { uploadonCloudinary } from "../utils/cloudinary.js";
 import { generateotp, otphtml } from "../utils/generateOtp.js";
 import jwt from 'jsonwebtoken'
+import crypto from 'node:crypto'
 
 
 const cookieOptions= {
@@ -86,19 +88,26 @@ const Login = asyncHandler(async(req,res,next)=>{
           throw new Apierror(403,"Incorrect Password")
      }
 
-     const accessToken = await user.generateAccessToken(); 
-     const refreshToken  = await user.generateRefreshToken();
-     console.log(refreshToken)
-     user.accessToken=accessToken
-     user.refreshToken = refreshToken
+     // const accessToken = await user.generateAccessToken(); 
+     // const refreshToken  = await user.generateRefreshToken();
+     // console.log(refreshToken)
+     // user.accessToken=accessToken
+     // user.refreshToken = refreshToken
 
-     
+     const token = crypto.randomBytes(32).toString('hex');
+     await redis.set(
+          `session:${token}`, 
+          JSON.stringify({ userId: user._id }), 
+          'EX', 
+          86400
+     );
+
      await user.save({validateBeforeSave:false})
 
-     const saveduser = await User.findOne({email}).select("-password -refreshToken")
+     const saveduser = await User.findOne({email}).select("-password")
      
 
-     res.status(200).cookie('refreshToken',refreshToken,cookieOptions).json(
+     res.status(200).cookie('session',token,cookieOptions).json(
           new Apiresponse(200,saveduser,"User logged In")
      )
 
@@ -146,9 +155,34 @@ const logOut = asyncHandler(async(req,res,next)=>{
      
 })
 
+const getCloudinarySignature = asyncHandler(async(req,res,next)=>{
+     const user = req.user
+     const timestamp = Math.round((new Date()).getTime() / 1000);
+  
+  const signature = cloudinary.utils.api_sign_request(
+    { timestamp: timestamp, folder: 'profile_pics' },
+    process.env.CLOUDINARY_API_SECRET
+  );
+
+  res.json({ signature, timestamp, apiKey: process.env.CLOUDINARY_API_KEY });
+})
+
+const uploadAvatar = asyncHandler(async(req,res,next)=>{
+     const user = req.user
+     const cloudinaryres = await uploadonCloudinary(req.file.path)
+     user.profile = cloudinaryres.secure_url
+     await user.save({validateBeforeSave:false})
+
+     res.status(200).json(
+          new Apiresponse(200,user.profile,"profile updated")
+     )
+})
+
 export {sendOtp,
      emailVerification,
      Login,
      refreshAccessToken,
      userdetails,
-     logOut}
+     logOut,
+     uploadAvatar
+}

@@ -18,6 +18,7 @@ export let socket = io('http://localhost:8000',{
      reconnectionDelay:1000,
 })
 
+
 const Home = () => {
   const dispatch = useDispatch()
 const [isChatOpen,updateIsChatOpen] = useState(false)
@@ -25,9 +26,7 @@ const {user}= useContext(Usercontext)
 const [chat,updatechat] = useState(null)
 const {data:allfriends,isLoading,isFetching,isError} = useGetAllfriendsQuery()
 
-
   const {data:messagedata,isLoading:messageisLoading,isFetching:messageisFetching} = useFetchChatHistoryQuery({email:chat?.email},{skip:!chat ||!chat.email})
-
 
 
   useEffect(()=>{
@@ -61,16 +60,18 @@ const {data:allfriends,isLoading,isFetching,isError} = useGetAllfriendsQuery()
     }
 
     socket.on('receive_message',handlemessageupdate)
+    // socket.on('typing')
     return ()=> {
       socket.off('receive_message',handlemessageupdate)
     }
   },[dispatch])
 
 
+
   return (
     <div className='max-w-screen h-screen max-h-screen flex flex-row flex-1'>
       {
-        isChatOpen==false?<LeftSidebar updatechat={updatechat} socket={socket} isLoading={isLoading} allfriends={allfriends} isChatOpen={isChatOpen} updateIsChatOpen={updateIsChatOpen}/>:
+        isChatOpen==false?<LeftSidebar updatechat={updatechat} socket={socket} isLoading={isLoading} isError={isError} allfriends={allfriends} isChatOpen={isChatOpen} updateIsChatOpen={updateIsChatOpen}/>:
         <MessageContainer socket={socket} chat={chat} isChatOpen={isChatOpen} updateIsChatOpen={updateIsChatOpen} data={messagedata} isLoading={messageisLoading}></MessageContainer>
       }
        

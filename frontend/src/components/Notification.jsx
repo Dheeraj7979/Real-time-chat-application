@@ -7,10 +7,13 @@ import { useEffect,useRef } from 'react'
 import { useAcceptRequestMutation, useRejectRequestMutation } from '../services/friendApis.js'
 import { io } from 'socket.io-client'
 import { socket } from './Home.jsx'
+import { useDispatch, useSelector } from 'react-redux'
+import { makeNotificationFalse } from '../services/NotificationSlice.js'
 
 
 
 const Notification = () => {
+     const dispatch = useDispatch()
      const sentinelRef = useRef(null);
 
      const [tab,switchtab] = useState('all')
@@ -23,20 +26,6 @@ const Notification = () => {
      const [rejectrequest] = useRejectRequestMutation()
      const [deletenotification] = useDeleteNotificationMutation()
 
-
-     // useEffect(()=>{
-     //      try{
-     //           console.log("listner active ")
-     //           socket.on('notification',(data)=>{
-     //           console.log(data)
-     //      })
-     //      }catch(err){
-     //           console.log(err)
-     //      }
-
-     //      return ()=>{socket.off('notification')}
-          
-     // },[])
 
 useEffect(() => {
   const handleScroll = () => {
@@ -73,6 +62,11 @@ useEffect(() => {
      //           setallnotifications(newnotifications)
      //      }
      // },[tab])
+
+     useEffect(()=>{
+          dispatch(makeNotificationFalse())
+          console.log(makeNotificationFalse())
+     },[isLoading,isFetching])
 
      
      const deletenoti = async({id})=>{
@@ -129,7 +123,7 @@ useEffect(() => {
                               if(tab=='request' && (noti.type=='request'||noti.type=='friend_request') ){
                                    
                               return(
-                              <div className='px-8 py-6 text-md font-semibold rounded-xl shadow-md flex flex-col gap-4 text-justify'>
+                              <div key={noti._id} className='px-8 py-6 text-md font-semibold rounded-xl shadow-md flex flex-col gap-4 text-justify'>
                                    <p className='text-sm md:text-lg'>{noti.message}</p>
 
                                    {
@@ -151,10 +145,10 @@ useEffect(() => {
 
                                    {
                                         noti.type=='request'||noti.type=='friend_request' && noti.checked==false?<div className=' flex gap-4 justify-center md:justify-start'>
-                                            <button 
+                                             <button 
                                              onClick={()=>{acceptreq({noti,idx})}}
                                              class="bg-green-500 hover:bg-green-700 text-white  font-semibold py-2 px-6 border border-green-700 rounded-lg cursor-pointer">Accept</button>
-                                            <button
+                                             <button
                                              onClick={()=>{rejectreq({noti,idx})}}
                                              class="bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-6 border border-red-700 rounded-lg cursor-pointer">Reject</button>
                                         </div>:<></>
@@ -166,10 +160,8 @@ useEffect(() => {
                     }
                     </div>
                }
-      </div>
-      <div ref={sentinelRef} style={{ height: "1px" }} />
-    </div>
-  )
+     </div>
+     </div>
+)
 }
-
 export default Notification

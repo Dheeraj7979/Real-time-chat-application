@@ -60,11 +60,28 @@ const logoutservice = async function(){
      }
 }
 
+const avatarupdateservice = async function (formData) {
+  try {
+    const response = await axiosInstance.post('/user/update-avatar',formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
 export {
      RegisterService,
      getotp,
      Loginservice,
      refreshtokens,
      getuserdetails,
-     logoutservice
+     logoutservice,
+     avatarupdateservice
 }

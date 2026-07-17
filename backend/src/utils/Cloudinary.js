@@ -18,7 +18,6 @@ const uploadonCloudinary = async function(filepath){
           console.log(`error while uploading file on cloudinary ${error}`)
           fs.unlinkSync(filepath)
      }
-     
 }
 
 export {uploadonCloudinary}

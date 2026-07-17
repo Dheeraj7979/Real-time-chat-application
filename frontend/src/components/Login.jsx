@@ -17,10 +17,9 @@ const Login = () => {
     e.preventDefault();
     try{
         const response = await Loginservice({email,password})
-        console.log(response)
-        localStorage.setItem("token",response.data?.accessToken||'')
-        console.log(response.data)
+        
        await updateuser(response.data)
+       await new Promise(resolve => setTimeout(resolve, 2000));
         navigate('/')
     } catch(error){
       if(error?.response?.data?.message){
