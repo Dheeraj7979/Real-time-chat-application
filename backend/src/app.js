@@ -30,10 +30,10 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
 
-import { AuthRouter } from './routes/User.routes.js';
+import { AuthRouter } from './routes/user.routes.js';
 import { friendRouter } from './routes/friends.routes.js';
 import RoomsRouter from './routes/rooms.routes.js';
-import { notificationRouter } from './routes/Notification.routes.js';
+import { notificationRouter } from './routes/notification.routes.js';
 import { agentRouter } from './routes/agent.routes.js';
 
 

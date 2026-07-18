@@ -1,8 +1,8 @@
 import { Message } from "../models/message.models.js";
 import { allsockets } from "../socket/socket.controller.js";
-import { Apierror } from "../utils/Apierror.js";
-import { Apiresponse } from "../utils/apiresponse.js";
-import { asyncHandler } from "../utils/AsyncHandler.js";
+import { Apierror } from "../utils/apierror.js";
+import { Apiresponse } from "../utils/apiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 
 const fetchPastMessages = asyncHandler(async(req ,res ,next)=>{

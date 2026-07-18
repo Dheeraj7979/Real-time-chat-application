@@ -1,10 +1,10 @@
 
 import { redis } from "../database/redis.js"
-import { User } from "../models/User.models.js";
+import { User } from "../models/user.models.js";
 import { sendMail } from "../services/sendMail.js";
-import { Apierror } from "../utils/Apierror.js";
-import { Apiresponse } from "../utils/apiresponse.js";
-import {asyncHandler}  from '../utils/AsyncHandler.js'
+import { Apierror } from "../utils/apierror.js";
+import { Apiresponse } from "../utils/apiResponse.js";
+import {asyncHandler}  from '../utils/asyncHandler.js'
 import { uploadonCloudinary } from "../utils/cloudinary.js";
 import { generateotp, otphtml } from "../utils/generateOtp.js";
 import jwt from 'jsonwebtoken'

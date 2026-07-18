@@ -1,8 +1,8 @@
 
-import { Notification } from '../models/Notification.models.js'
+import { Notification } from '../models/notification.models.js'
 import { User } from '../models/User.models.js'
-import { Apiresponse } from '../utils/apiresponse.js'
-import {asyncHandler}  from '../utils/AsyncHandler.js'
+import { Apiresponse } from '../utils/apiResponse.js'
+import {asyncHandler}  from '../utils/asyncHandler.js'
 import { createNotification } from './notification.controller.js'
 
 

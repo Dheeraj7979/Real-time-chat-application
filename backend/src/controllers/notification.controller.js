@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { Notification } from "../models/Notification.models.js";
-import { Apierror } from "../utils/Apierror.js";
-import { Apiresponse } from "../utils/apiresponse.js";
-import { asyncHandler } from "../utils/AsyncHandler.js";
+import { Notification } from "../models/notification.models.js";
+import { Apierror } from "../utils/apierror.js";
+import { Apiresponse } from "../utils/apiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { allsockets } from "../socket/socket.controller.js";
 import { getIo } from "../socket/socket.controller.js";
 

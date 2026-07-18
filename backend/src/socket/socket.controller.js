@@ -1,7 +1,7 @@
 import { io } from "../app.js";
 import { redis } from "../database/redis.js";
 import { Message } from "../models/message.models.js";
-import { Apierror } from "../utils/Apierror.js";
+import { Apierror } from "../utils/apierror.js";
 
 export const allsockets = new Map();
 

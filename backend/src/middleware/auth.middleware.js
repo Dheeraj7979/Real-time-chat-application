@@ -1,7 +1,7 @@
 import { redis } from "../database/redis.js";
 import { User } from "../models/User.models.js";
-import { Apierror } from "../utils/Apierror.js";
-import { asyncHandler } from "../utils/AsyncHandler.js";
+import { Apierror } from "../utils/apierror.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from 'jsonwebtoken'
 
 const authmiddleware = asyncHandler(async(req,res,next)=>{
