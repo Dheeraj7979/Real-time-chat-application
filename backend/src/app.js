@@ -11,9 +11,15 @@ import { Server } from 'socket.io'
 
 const server = http.createServer(app);
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://real-time-chat-application-zeta-silk.vercel.app",
+  "https://real-time-chat-application-8d82912tc-dheeraj7979s-projects.vercel.app",
+];
+
 const io = new Server(server, {
     cors: {
-        origin:process.env.CORS_ORIGIN,
+        origin:[process.env.CORS_ORIGIN],
         methods: ["GET", "POST"]
     }
 });
@@ -21,7 +27,7 @@ const io = new Server(server, {
 
 const corsOptions = {
   
-     origin:process.env.CORS_ORIGIN,
+     origin:[process.env.CORS_ORIGIN],
      credentials:true,
 }
 
