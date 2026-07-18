@@ -1,5 +1,5 @@
 import { redis } from "../database/redis.js";
-import { User } from "../models/User.models.js";
+import { User } from "../models/user.models.js";
 import { Apierror } from "../utils/apierror.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from 'jsonwebtoken'
