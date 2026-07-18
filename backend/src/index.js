@@ -12,6 +12,6 @@ await connectdb()
 
 handleSocketConnections()
 
-server.listen('8000',()=>{
+server.listen(process.env.PORT,()=>{
      console.log("app listining")
 })
