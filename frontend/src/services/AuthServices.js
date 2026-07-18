@@ -76,6 +76,17 @@ const avatarupdateservice = async function (formData) {
   }
 };
 
+const googleauthService = async (credentialResponse)=>{
+     try{
+          const response = await axiosInstance.post('/user/google',JSON.stringify({
+                    credential: credentialResponse.credential,
+                }),)
+          return response.data
+     } catch(error){
+          return Promise.reject(error)
+     }
+}
+
 export {
      RegisterService,
      getotp,
@@ -83,5 +94,6 @@ export {
      refreshtokens,
      getuserdetails,
      logoutservice,
-     avatarupdateservice
+     avatarupdateservice,
+     googleauthService
 }

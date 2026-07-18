@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Loginservice } from '../services/AuthServices';
+import { googleauthService, Loginservice } from '../services/AuthServices';
 import { UNSAFE_ErrorResponseImpl, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { Usercontext } from '../context/UserContext.jsx';
 import { toast } from 'react-toastify';
-
+import { GoogleLogin } from '@react-oauth/google';
 
 
 const Login = () => {
@@ -17,9 +17,7 @@ const Login = () => {
     e.preventDefault();
     try{
         const response = await Loginservice({email,password})
-        
        await updateuser(response.data)
-       await new Promise(resolve => setTimeout(resolve, 2000));
         navigate('/')
     } catch(error){
       if(error?.response?.data?.message){
@@ -27,9 +25,17 @@ const Login = () => {
       }
       console.log(error.response.data)
     }
-    
-  
   };
+
+  const handleSuccess = async (credentialResponse) => {
+    try {
+        const response = await googleauthService(credentialResponse)
+        await updateuser(response.data)
+        navigate("/");
+    } catch (err) {
+        console.log(err);
+    }
+};
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -62,6 +68,12 @@ const Login = () => {
             Sign In
           </button>
         </form>
+        <div className='my-2'>
+        <GoogleLogin 
+            onSuccess={handleSuccess}
+            onError={() => console.log("Login Failed")}
+        />
+        </div>
 
         {/* --- Added Sign Up Link Here --- */}
         <div className="mt-6 text-center text-sm text-gray-500">

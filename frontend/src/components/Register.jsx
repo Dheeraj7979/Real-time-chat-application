@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { getotp, RegisterService } from '../services/AuthServices.js';
+import React, { useState, useEffect, useContext } from 'react';
+import { getotp, googleauthService, RegisterService } from '../services/AuthServices.js';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { Usercontext } from '../context/UserContext.jsx';
 
 const Register = () => {
+  const {user,updateuser} = useContext(Usercontext)
   const navigate = useNavigate()
   // Form State
   const [email, setEmail] = useState('');
@@ -41,16 +44,9 @@ const Register = () => {
     }
   };
 
-  // 2. Check Username Availability (Triggered by useEffect below)
   const checkUsernameAvailability = async (user) => {
     setIsCheckingUsername(true);
     try {
-      // Replace with your actual GET request
-      // const response = await fetch(`/api/auth/check-username?username=${user}`);
-      // const data = await response.json();
-      // setIsUsernameAvailable(data.isAvailable);
-
-      // Simulating network request and checking logic (e.g., 'admin' is taken)
       await new Promise(resolve => setTimeout(resolve, 600));
       const takenUsernames = ['admin', 'testuser', 'superuser'];
       setIsUsernameAvailable(!takenUsernames.includes(user.toLowerCase()));
@@ -62,7 +58,6 @@ const Register = () => {
     }
   };
 
-  // 3. Final Registration Submit
   const handleRegister = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -71,7 +66,6 @@ const Register = () => {
     if (isUsernameAvailable === false) {
       return setMessage('Please choose an available username.');
     }
-
     setIsLoading(true);
     try {
       const payload = { email, otp, username, password };
@@ -93,6 +87,16 @@ const Register = () => {
     }
   };
 
+  const handleSuccess = async (credentialResponse) => {
+        try {
+            const response = await googleauthService(credentialResponse)
+            await updateuser(response.data)
+            navigate("/");
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
 
   // Debounce username checking so it doesn't fire on every single keystroke
   useEffect(() => {
@@ -107,8 +111,6 @@ const Register = () => {
     }
   }, [username]);
 
-
-  // --- UI Render ---
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 text-gray-200">
       <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-xl shadow-2xl p-8">
@@ -120,7 +122,6 @@ const Register = () => {
           </div>
         )}
 
-        {/* STEP 1: Email & OTP Request */}
         {step === 1 && (
           <form onSubmit={handleRequestOtp} className="flex flex-col gap-4">
             <div>
@@ -228,6 +229,13 @@ const Register = () => {
           </form>
           
         )}
+
+        <div className='my-2'>
+        <GoogleLogin
+            onSuccess={handleSuccess}
+            onError={() => console.log("Login Failed")}
+        />
+        </div>
         <div className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{' '}
           <a href="/login" className="text-blue-500 hover:text-blue-400 transition-colors font-medium">

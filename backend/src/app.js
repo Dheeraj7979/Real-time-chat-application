@@ -18,8 +18,10 @@ const io = new Server(server, {
     }
 });
 
+
 const corsOptions = {
-     origin:[process.env.CORS_ORIGIN],
+  
+     origin:process.env.CORS_ORIGIN,
      credentials:true,
 }
 

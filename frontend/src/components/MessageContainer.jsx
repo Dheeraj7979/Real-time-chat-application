@@ -151,7 +151,7 @@ const Message = ({data,sender,user})=>{
      return(
           <div className={`${(sender==user.email?'bg-slate-700 text-white ml-auto':'bg-white')} p-1 rounded-md  max-w-[50%] sm:max-w-[50%]  mx-3 mb-1 min-w-16 flex flex-row w-fit gap-1`}>
                
-               <p className='text-[12px] font-normal max-w-[85%] md:max-w-[95%]'>{data.message}</p>
+               <p className='text-[12px] font-normal max-w-[85%] md:max-w-[95%] wrap-break-word'>{data.message}</p>
                <div className='flex flex-row w-full text-[8px] flex-1 items-end'>
                     <p className='text-right w-full'>{time}</p>
                </div>

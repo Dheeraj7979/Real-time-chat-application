@@ -9,6 +9,9 @@ import { uploadonCloudinary } from "../utils/cloudinary.js";
 import { generateotp, otphtml } from "../utils/generateOtp.js";
 import jwt from 'jsonwebtoken'
 import crypto from 'node:crypto'
+import { OAuth2Client } from "google-auth-library";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 
 const cookieOptions= {
@@ -19,13 +22,12 @@ const cookieOptions= {
 
 
 const sendOtp = asyncHandler(async(req,res,next)=>{
-     const {email} = req.body||'';
+     const { email } = req.body || {};
      console.log(req.body)
      console.log(email)
      if(email==''|| email==undefined) {
           throw new Apierror(400,"Please enter email!")
      }
-     console.log("otp request received ");
 
      const otp = generateotp()
      const html = otphtml(otp)
@@ -68,50 +70,64 @@ const emailVerification = asyncHandler(async (req,res,next)=>{
      )
 })
 
-const Login = asyncHandler(async(req,res,next)=>{
+const Login = asyncHandler(async (req, res, next) => {
 
-     const {email,password} = req.body
-     
-     if(email==''){
-          throw new Apierror(400,"Email required!")
-     }
-     if(password==''){
-          throw new Apierror(400,"password required!")
-     }
+    const { email, password } = req.body;
 
-     const user = await User.findOne({email:email})
-     if(user==undefined||user==null){
-          throw new Apierror(404,"Email not registered!")
-     }
+    if (!email) {
+        throw new Apierror(400, "Email required!");
+    }
 
-     if(password != user.password){
-          throw new Apierror(403,"Incorrect Password")
-     }
+    if (!password) {
+        throw new Apierror(400, "Password required!");
+    }
 
-     // const accessToken = await user.generateAccessToken(); 
-     // const refreshToken  = await user.generateRefreshToken();
-     // console.log(refreshToken)
-     // user.accessToken=accessToken
-     // user.refreshToken = refreshToken
+    const user = await User.findOne({ email });
 
-     const token = crypto.randomBytes(32).toString('hex');
-     await redis.set(
-          `session:${token}`, 
-          JSON.stringify({ userId: user._id }), 
-          'EX', 
-          86400
-     );
+    if (!user) {
+        throw new Apierror(404, "Email not registered!");
+    }
 
-     await user.save({validateBeforeSave:false})
+    // If the account was created using Google
+    if (!user.password) {
+        throw new Apierror(
+            400,
+            "This account uses Google Sign-In. Please continue with Google."
+        );
+    }
 
-     const saveduser = await User.findOne({email}).select("-password")
-     
+    // Compare hashed password
+    const isPasswordCorrect = await user.isPasswordCorrect(password);
 
-     res.status(200).cookie('session',token,cookieOptions).json(
-          new Apiresponse(200,saveduser,"User logged In")
-     )
+    if (!isPasswordCorrect) {
+        throw new Apierror(403, "Incorrect Password");
+    }
 
-})
+    // Create Session
+    const token = crypto.randomBytes(32).toString("hex");
+
+    await redis.set(
+        `session:${token}`,
+        JSON.stringify({
+            userId: user._id,
+        }),
+        "EX",
+        86400
+    );
+
+    const savedUser = await User.findById(user._id).select("-password");
+
+    res
+        .status(200)
+        .cookie("session", token, cookieOptions)
+        .json(
+            new Apiresponse(
+                200,
+                savedUser,
+                "User Logged In Successfully"
+            )
+        );
+});
 
 const refreshAccessToken = asyncHandler(async(req,res,next)=>{
      const token = req?.cookies?.refreshToken ||''
@@ -178,11 +194,90 @@ const uploadAvatar = asyncHandler(async(req,res,next)=>{
      )
 })
 
+const googleAuth = asyncHandler(async (req, res) => {
+    const { credential } = req.body;
+
+    if (!credential) {
+        throw new Apierror(400, "Google credential is required");
+    }
+
+    // Verify Google ID Token
+    const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    const {
+        email,
+        name,
+        picture,
+        sub: googleId,
+        email_verified,
+    } = payload;
+
+    if (!email_verified) {
+        throw new Apierror(403, "Google account is not verified");
+    }
+
+    // Find existing user
+    let user = await User.findOne({ email });
+
+    // Create new user if first login
+    if (!user) {
+        user = await User.create({
+            email,
+            name,
+            profile: picture,
+            googleId,
+            isVerified: true,
+        });
+    }
+
+    // Link Google account for existing users
+    if (!user.googleId) {
+        user.googleId = googleId;
+
+        if (!user.profile) {
+            user.profile = picture;
+        }
+
+        await user.save({ validateBeforeSave: false });
+    }
+
+    // Create Redis Session
+    const sessionId = crypto.randomBytes(32).toString("hex");
+
+    await redis.set(
+        `session:${sessionId}`,
+        JSON.stringify({
+            userId: user._id,
+        }),
+        "EX",
+        60 * 60 * 24
+    );
+
+    const savedUser = await User.findById(user._id).select("-password");
+
+    return res
+        .status(200)
+        .cookie("session", sessionId, cookieOptions)
+        .json(
+            new Apiresponse(
+                200,
+                savedUser,
+                "Google Login Successful"
+            )
+        );
+});
+
 export {sendOtp,
      emailVerification,
      Login,
      refreshAccessToken,
      userdetails,
      logOut,
-     uploadAvatar
+     uploadAvatar,
+     googleAuth
 }

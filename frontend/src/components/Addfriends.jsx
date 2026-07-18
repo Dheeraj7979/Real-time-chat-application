@@ -76,11 +76,11 @@ if(isLoading || !users)
           <input value={query} onChange={(e)=>{updatequery(e.target.value)}} className='w-full hover:outline-none focus:outline-none' type='text' placeholder='Search User'></input>
           <Search 
                onClick={()=>{searchUser()}}
-               className='my-auto' height={'18px'} fill={'#EEEEEE'} />
+               className='my-auto cursor-pointer' height={'18px'} fill={'#EEEEEE'} />
           {
                searchuserpresent?<X 
                onClick={()=>{removeSearch()}}
-               className='my-auto' height={'18px'} fill={'#EEEEEE'} />:<></>
+               className='my-auto cursor-pointer' height={'18px'} fill={'#EEEEEE'} />:<></>
           }
           
           {/* search box ended here */}
