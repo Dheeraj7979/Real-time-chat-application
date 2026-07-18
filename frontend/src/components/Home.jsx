@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux'
 import { api } from '../services/apiSlice.js'
 import { useFetchChatHistoryQuery } from '../services/HistoryApis.js'
 
-export let socket = io('http://localhost:8000',{
+export let socket = io(import.meta.env.VITE_BASE_URI,{
      reconnection:true,
      reconnectionAttempts:5,
      reconnectionDelay:1000,
