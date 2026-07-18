@@ -114,11 +114,11 @@ userSchema.methods.generateRefreshToken = function () {
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
-        return next();
+        return;
     }
 
     if (!this.password) {
-        return next();
+        return;
     }
 
     this.password = await bcrypt.hash(this.password, 10);
