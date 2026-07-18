@@ -4,7 +4,7 @@ import { findUnknownUsers } from './friendsServices';
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl:import.meta.env.BASE_URI,
+    baseUrl:import.meta.env.VITE_BASE_URI,
     credentials: 'include',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');

@@ -11,7 +11,7 @@ export const contextStateHolder ={
 };
 
 const axiosInstance = axios.create({
-     baseURL:import.meta.env.BASE_URI,
+     baseURL:import.meta.env.VITE_BASE_URI,
      timeout:80000,
      withCredentials: true,
      
